@@ -101,8 +101,6 @@ func div(a int64, b int64) (int64,int64) {
 
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
-	// num1 := createKeyValuePairs(request.QueryStringParameters);
-	// num1,err := strconv.ParseFloat( request.QueryStringParameters["num1"],64);
 	num1, err := strconv.ParseInt(request.QueryStringParameters["num1"], 10, 64)
 	fmt.Println(num1, err, reflect.TypeOf(num1))
 
@@ -111,21 +109,22 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	op := request.QueryStringParameters["op"]
 
-	sum := add(num1,num2)
+	answer := int64(0)
+	remainder := int64(0)
+	switch string := op; string {
+	case "add":
+		answer = add(num1, num2)
+	case "multi":
+		answer = multi(num1, num2)
+	case "sub":
+		answer = sub(num1, num2)
+	case "div":
+		answer, remainder = div(num1, num2)
+		//default //add error
+	}
 
-	// switch os := runtime.GOOS; os {
-	// case "darwin":
-	// 	fmt.Println("OS X.")
-	// case "linux":
-	// 	fmt.Println("Linux.")
-	// default:
-	// 	// freebsd, openbsd,
-	// 	// plan9, windows...
-	// 	fmt.Printf("%s.\n", os)
-	// }
+	output:= fmt.Sprintln(answer,"r", remainder)
 
-	// output := fmt.Sprintf("%e + %T = %e %s", num1, num2, sum, op)
-	output := fmt.Sprintln(num1, num2, sum, op)
 
 	return events.APIGatewayProxyResponse{
 		Body:       output,
