@@ -2,26 +2,15 @@ package main
 
 import (
 	"reflect"
-	// "encoding/json"
-	// "errors"
 	"fmt"
-	// "bytes"
-	// "net/http"
-	// "os"
+	// "encoding/json"
 	"strconv"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-var (
-// API_KEY      = os.Getenv("API_KEY")
-// ErrorBackend = errors.New("Something went wrong")
-)
 
-type Request struct {
-	ID int `json:"id"`
-}
 
 func add(a int64, b int64) int64 {
 	if b == 0 {
@@ -73,33 +62,32 @@ func sub(a int64, b int64) int64 {
 	return add(a, b)
 }
 
-func div(a int64, b int64) (int64,int64) {
+func div(a int64, b int64) (int64, int64) {
 	a, b, makeNeg := negCheck(a, b)
 
 	divCount := int64(0)
 	remainder := int64(0)
 	for a > 0 {
-		a = sub(a,b)
-		divCount = add(divCount,int64(1));
+		a = sub(a, b)
+		divCount = add(divCount, int64(1))
 	}
 	fmt.Println(a)
 	if a != 0 {
-		divCount = sub(divCount,int64(1));
+		divCount = sub(divCount, int64(1))
 		remainder = invert(a)
 	}
-
 
 	if makeNeg {
 		divCount = invert(divCount)
 	}
 
-	return divCount,remainder
+	return divCount, remainder
 
 }
 
-
-
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+
+	//TODO check that query strings exist and their type, throw errors otherwise
 
 	num1, err := strconv.ParseInt(request.QueryStringParameters["num1"], 10, 64)
 	fmt.Println(num1, err, reflect.TypeOf(num1))
@@ -123,17 +111,16 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		//default //add error
 	}
 
-	output:= fmt.Sprintln(answer,"r", remainder)
-
-
+	output := fmt.Sprintln(answer, "r", remainder)
 	resp := events.APIGatewayProxyResponse{StatusCode: 200, Body: output}
 	resp.Headers = make(map[string]string)
 
+	// These headers show up in AWS test console and in POSTMAN but
+	// still can't make the GET request from the browser as needed
 	resp.Headers["Access-Control-Allow-Origin"] = "*"
-	resp.Headers["Access-Control-Allow-Credentials"] = "true";
-	resp.Headers["Access-Control-Allow-Headers"] = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token";
+	resp.Headers["Access-Control-Allow-Credentials"] = "true"
+	resp.Headers["Access-Control-Allow-Headers"] = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
 	resp.Headers["Access-Control-Allow-Methods"] = "GET"
-
 
 	return resp, nil
 }

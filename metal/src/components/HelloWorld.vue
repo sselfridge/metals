@@ -49,11 +49,29 @@ export default {
       const op = this.op;
       const url = `https://vfbptnnz0k.execute-api.us-west-2.amazonaws.com/meingo?num1=${num1}&num2=${num2}&op=${op}`;
 
-      axios({ method: "GET", url: url }).then(
+      // This is where I'm getting a CORS error
+      // it seems to be something with the AWS API gateway since the httpbin response below works just fine
+      // but I'm not sure why, I've added all the relevant headers to the lambda func
+      // axios({ method: "GET", url: url }).then(
+      //   result => {
+      //     console.log(result.data);
+      //     //TODO - data recieved as {number} r {remainder}
+      //     this.num1 = result.data;
+      //     this.num2 = 0;
+      //   },
+      //   error => {
+      //     console.log("asdf");
+      //     console.error(error);
+      //   }
+      // );
+
+      axios({ method: "GET", url: "https://httpbin.org/ip" }).then(
         result => {
-          console.log(result.data);
-          //TODO - data recieved as {number} r {remainder}
-          this.num1 = result.data;
+          const out = result.data.origin;
+          console.log(out);
+          const ip = out.slice(0, out.indexOf("."));
+          console.log(ip);
+          this.num1 = parseInt(ip);
           this.num2 = 0;
         },
         error => {
@@ -61,24 +79,6 @@ export default {
           console.error(error);
         }
       );
-
-      // axios({
-      //   method: "GET",
-      //   url: url,
-        // headers: {
-        //   "Access-Control-Allow-Origin": "*",
-        //   "Access-Control-Allow-Methods": "GET",
-        //   "Access-Control-Allow-Headers": "Origin, Content-Type, X-Auth-Token"
-        // }
-      // }).then(
-      //   result => {
-      //     this.ip = result.data.origin;
-      //     console.log(`data: ${this.ip}`);
-      //   },
-      //   error => {
-      //     console.error(error);
-      //   }
-      // );
     }
   }
 };
