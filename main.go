@@ -126,10 +126,16 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	output:= fmt.Sprintln(answer,"r", remainder)
 
 
-	return events.APIGatewayProxyResponse{
-		Body:       output,
-		StatusCode: 207,
-	}, nil
+	resp := events.APIGatewayProxyResponse{StatusCode: 200, Body: output}
+	resp.Headers = make(map[string]string)
+
+	resp.Headers["Access-Control-Allow-Origin"] = "*"
+	resp.Headers["Access-Control-Allow-Credentials"] = "true";
+	resp.Headers["Access-Control-Allow-Headers"] = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token";
+	resp.Headers["Access-Control-Allow-Methods"] = "GET"
+
+
+	return resp, nil
 }
 
 func main() {
